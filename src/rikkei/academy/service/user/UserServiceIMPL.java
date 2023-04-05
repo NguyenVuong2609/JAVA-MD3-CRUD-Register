@@ -46,4 +46,27 @@ public class UserServiceIMPL implements IUserService{
         }
         return false;
     }
+
+    @Override
+    public boolean checkLogin(String username, String password) {
+        List<User> userLogin = new Config<User>().readFromFile(Config.PATH_USER_LOGIN);
+        for (int i = 0; i < userList.size(); i++) {
+            if (userList.get(i).getUsername().equals(username) && userList.get(i).getPassword().equals(password)){
+                userLogin.add(userList.get(i));
+                new Config<User>().writeToFile(Config.PATH_USER_LOGIN,userLogin);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public User getCurentUser() {
+        if (new Config<User>().readFromFile(Config.PATH_USER_LOGIN).size()!=0){
+            User user = new Config<User>().readFromFile(Config.PATH_USER_LOGIN).get(0);
+            return user;
+        }
+        return null;
+    }
+
 }

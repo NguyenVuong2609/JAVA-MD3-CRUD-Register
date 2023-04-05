@@ -2,6 +2,7 @@ package rikkei.academy.view;
 
 import rikkei.academy.config.Config;
 import rikkei.academy.controller.UserController;
+import rikkei.academy.dto.request.SignInDTO;
 import rikkei.academy.dto.request.SignUpDTO;
 import rikkei.academy.dto.response.ResponseMessage;
 import rikkei.academy.model.User;
@@ -34,18 +35,21 @@ public class UserView {
         Set<String> strRole = new HashSet<>();
         strRole.add(role);
         SignUpDTO sign = new SignUpDTO(id, name, username, email, password, strRole);
-        ResponseMessage message = userController.register(sign);
-        if (message.getMessage().equals("user_existed")){
-            System.err.println("Username existed! Please try again");
-            register();
-        }
-        if (message.getMessage().equals("email_existed")){
-            System.err.println("Email existed! Please try again");
-            register();
-        }
-        if (message.getMessage().equals("create_success")){
-            System.out.println("Register successful!");
-            new Navbar();
+        while (true){
+            ResponseMessage responseMessage = userController.register(sign);
+            if(responseMessage.getMessage().equals("user_existed")){
+                System.err.println("user name existed!");
+                username = Config.scanner().nextLine();
+                sign.setUsername(username);
+                System.out.println("duoi lenh nhap");
+            } else if(responseMessage.getMessage().equals("email_existed")){
+                System.err.println("email name existed!");
+                email = Config.scanner().nextLine();
+                sign = new SignUpDTO(id,name,username,email,password,strRole);
+            } else if(responseMessage.getMessage().equals("create_success")){
+                formLogin();
+                break;
+            }
         }
 
     }
@@ -55,6 +59,31 @@ public class UserView {
         String back = Config.scanner().nextLine();
         if(back.equalsIgnoreCase("back")){
             new Navbar();
+        }
+    }
+
+    public  void formLogin(){
+        System.out.println("Login Form");
+        System.out.println("Enter your username: ");
+        String username = Config.scanner().nextLine();
+        System.out.println("Enter your password: ");
+        String password = Config.scanner().nextLine();
+        SignInDTO signInDTO = new SignInDTO(username, password);
+        while (true){
+            ResponseMessage responseMessage = userController.login(signInDTO);
+            if (responseMessage.getMessage().equals("login_failed")){
+                System.err.println("Login failed! Please check your account!");
+                System.out.println("Enter your username: ");
+                username = Config.scanner().nextLine();
+                System.out.println("Enter your password: ");
+                password = Config.scanner().nextLine();
+                signInDTO.setUsername(username);
+                signInDTO.setPassword(password);
+            } else {
+                System.out.println("Login successful!");
+                new Navbar();
+                break;
+            }
         }
     }
 }
